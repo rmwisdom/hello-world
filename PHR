@@ -1,0 +1,108 @@
+git remote add origin https://github.com/rmwisdom/Example-Personal-Health-Record.git
+git push -u origin master
+/* The following tables are created for a personal health record to record and track health claims and all actions related to health and medicine in my personal life. i) The name of this Database is PHR (Personal Health Record) for Rose Wisdom  ISMG 6080, Spring 2018 ii) Rose Wisdom iii) ORA37PRJ*/
+Create Table Physician 
+
+(PhysID VarChar2(50) primary key,
+PhysName VarChar2(50),
+PracticeName VarChar2(50),
+Specialty VarChar2(50),
+Address VarChar2(100),
+Phone VarChar2 (20),
+ApptmtFrequency VarChar2 (50));
+
+Insert into Physician VALUES ('ER07','Varies','ER Visit','Emergency Medicine','Varies','Varies','As needed');
+Insert into Physician VALUES ('Fairbanks03','Kristin Fairbanks','South Denver Gastroenterologist','Hepatology','499 E Hampden Ave # 420, 80113','(303) 788-888','Bi-Yearly');
+Insert into Physician VALUES ('Freedman02','Joanna Freedman','New West Physicians Arvada','Primary Care','9950 W 80th Ave #23 80005','(303) 425-1018','Quarterly');
+Insert into Physician VALUES ('Geisman04','Sara Geisman','Fox Physical Therapy','Physical Therapy','12297 Pennsylvania St #3','(303) 404-9494','Bi-Weekly');
+Insert into Physician VALUES ('Hockman08','Lee Hockman','Lee Hockman','Psychology','125 Cherry St St. 710','(303) 876-0985','Bi-weekly');
+Insert into Physician VALUES ('Rose01','Leslie Rose','Colorado Center for Rheumatology','Rheumatology','701 E. Hampden Avenue
+Suite 410 80113','(303) 788-1312','Quarterly');
+Insert into Physician VALUES ('Scariano05','Leslie Scariano','Center for Women''s Health','Gynecology','Center for Women''s Health
+125 Inverness Dr., E Suite 210 80112','(303) 755-0120','Yearly');
+Insert into Physician VALUES ('Urgent06','Many','Urgent Care','Emergency Medicine','Location Dependent','None','As needed');
+
+Create Table Claims (
+ClaimID VarChar2 (25) primary key,
+ClaimCategory VarChar2(30),
+CatID VarChar2 (30),
+CoveredCost Number (5,2),
+OutofPocket Number (5,2),
+PhysicianID VarChar2 (30) references Physician (PhysID));
+
+Insert into Claims Values ('2017321162457','Appointment','2017-21',320.00,158.00,'Hockman08');
+Insert into Claims Values ('2017339BN2551','Lab','Lab20170025',443.09,35.70,'Rose01');
+Insert into Claims Values ('2018002BX3815','Lab','Lab20170025',43.00, 0.00,'ER07');
+Insert into Claims Values ('2018008DB6288','Appointment','2017-00',504.00,185.44,'ER07');
+Insert into Claims Values ('2018011CT2326','Appointment','2018-00',215.00,142.72,'Urgent06');
+Insert into Claims Values ('2018020161460','Appointment','2018-02',180.00,38.00,'Freedman02');
+Insert into Claims Values ('2018024BJ0536','Lab','Lab20180003',517.12,61.91,'Freedman02');
+Insert into Claims Values ('2018038CY3845','Appointment','2018-01',219.00,161.46,'Rose01');
+Insert into Claims Values ('2018045BC9527','Lab','Lab20180002',210.00,210.00,'Rose01');
+Insert into Claims Values ('2018096BG0951','Lab','Lab20180001',103.00,31.22,'Freedman02');
+Insert into Claims Values ('627840580835500070','Prescription','50111043303',20.00, 0.00, 'Rose01');
+Insert into Claims Values ('993606164303367960','Prescription','68382000305',0.00, 91.31,'Rose01');
+
+Create Table Lab(
+LabID VarChar2(50) primary key,
+Laboratory VarChar2(100),
+Location VarChar2(100),
+ResultNormal Number(1) Not Null,
+DrawDate Date,
+ClaimID VarChar2(50) references Claims (ClaimID));
+
+
+INSERT INTO Lab VALUES ('Lab20170024','Labcorp','Walgreens',0, to_date('12-1-2017', 'mm-dd-yyyy'),'2017339BN2551');
+INSERT INTO Lab VALUES ('Lab20170025','Colorado Imaging Associates','St. Anthony Keystone',0, to_date('12-25-2017', 'mm-dd-yyyy'),'2018002BX3815');
+INSERT INTO Lab VALUES ('Lab20180001','Labcorp','Walgreens', 0, to_date('4-4-2018','mm-dd-yyyy'),'2018096BG0951');
+INSERT INTO Lab VALUES ('Lab20180002','Exagen','Colorado Center for Rheumatology',1, to_date('2-2-2018', 'mm-dd-yyyy') ,'2018045BC9527');
+INSERT INTO Lab VALUES ('Lab20180003','Labcorp','New West Physicians Arvada',1, to_date('1-16-2018', 'mm-dd-yyyy'),'2018024BJ0536');
+
+Create Table Diagnoses (
+DiagnosisID VarChar2(10) primary key,
+DiagnosisName VarChar2(100),
+Activity VarChar2 (25),
+SupervisingPhys VarChar2 (25) references Physician (PhysID));
+
+Insert into Diagnoses VALUES ('D51.0','Pernicious Anemia','Low','Freedman02');
+Insert into Diagnoses VALUES ('D80.2','Immunoglobulin A Deficiency 1','Low','Rose01');
+Insert into Diagnoses VALUES ('F33.1','Depression','Low','Freedman02');
+Insert into Diagnoses VALUES ('F41.9','Anxiety','Low','Freedman02');
+Insert into Diagnoses VALUES ('K75.4','Autoimmune Hepatitis','Medium','Fairbanks03');
+Insert into Diagnoses VALUES ('M45.9','Ankylosing Spondylitis','High','Rose01');
+
+Create Table Appointment (
+ApptmtID VarChar2 (20) primary key,
+PhysicianID VarChar2 (20),
+VisitDate Date,
+VisitNeed VarChar2 (100),
+VisitDescr VarChar2 (100),
+FutureAppointment Number (1) NOT NULL,
+FADate Date,
+LabOrder VarChar2(15) references Lab (LabID),
+ClaimID VarChar2(15) references Claims (ClaimID));
+
+
+INSERT INTO Appointment VALUES
+('2017-21','Hockman08', to_date('10-13-2017', 'mm-dd-yyyy'),'Regular check-in','N/a',1, to_date('10/20/2017', 'mm-dd-yyyy'),NULL,'2017321162457');
+INSERT INTO Appointment VALUES
+('2017-39','ER07', to_date('12-25-2017', 'mm-dd-yyyy'),'Feel on shoulder Skiing','Went to Keystone ER, Separated shoulder, follow up with orthopedist',0,Null,'Lab20170025','2018008DB6288');
+INSERT INTO Appointment VALUES
+('2018-00','Urgent06', to_date('1-5-2018', 'mm-dd-yyyy') ,'Photosensitive Rash','Directed to contact Rheumatologist',0,Null,Null,'2018011CT2326');
+INSERT INTO Appointment VALUES
+('2018-01','Freedman02', to_date('1-16-2018', 'mm-dd-yyyy'), 'New symptoms, request labs','See Rheumy, talk to psychologist for strategies',1,to_date('6-6-2018', 'mm-dd-yyyy'),'Lab20180003','2018020161460');
+INSERT INTO Appointment VALUES
+('2018-02','Rose01',to_date('2-1-2018', 'mm-dd-yyyy'),'New Injection Medication, Check labs','Labs drawn for Lupus, return in 3 months to discuss infusions',0,Null,'Lab20180002','2018038CY3845');
+
+Create Table SupportingTherapies(
+SID VarChar2 (10) primary key,
+ItemDesc Varchar2(100),
+Cost Number (5,2),
+DiagnosisID VarChar2(10) references Diagnoses (DiagnosisID),
+PurchasedDate Date);
+
+Insert into SupportingTherapies VALUES ('ST01','Heating Pad',25.00,'M45.9',to_date('3-3-2018', 'mm-dd-yyyy'));
+Insert into SupportingTherapies VALUES ('ST02','Massage Appointment',70.00,'M45.9', to_date ('1-31-2018', 'mm-dd-yyyy'));
+Insert into SupportingTherapies VALUES ('ST03','1 cm Syringes',5.00,'D51.0',to_date ('2-4-2018', 'mm-dd-yyyy'));
+Insert into SupportingTherapies VALUES ('ST04','Tylenol',4.67,'M45.9',to_date('2-8-2018', 'mm-dd-yyyy')); 
+Insert into SupportingTherapies VALUES ('ST05','Yoga Class',25.00,'M45.9',to_date('4-18-2018', 'mm-dd-yyyy'));
